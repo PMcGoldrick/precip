@@ -20,10 +20,8 @@ class Packet(object):
             self.buildPacket(kwargs)
         else:
             self.unpackedData = data # memoize binary packet data
-            
-        for opt,val in fields.items():
-            setattr(self, opt, self.unpackedData[val[0]:val[1]])
-            print opt, " : ", self.unpackedData[val[0]:val[1]]
+            self.parsePacket(self.unpackedData)
+    
     
     def buildPacket(self, **kwargs):
         """
@@ -37,11 +35,13 @@ class Packet(object):
         Parse the provided packet
         """
         if not data:
-            return
-        
+            print("No data provided for parsing")
         for opt in fields:
-            print opt
-            setattr(self, opt, data[fields[opt][0]:fields[opt][1]])
+            off = fields[opt][0]
+            ln = fields[opt][1]
+            setattr(self, opt, data[off:off+ln])
+            print opt, ": ", data[off:off+ln]
+        print "################################"
    
 
     @property
@@ -59,7 +59,7 @@ class Packet(object):
         if self._unpackedData: 
             print("Packet data not parsed as unpacked data already exists")
             return
-
+        
         fmt = str(len(data)) + "c"
         temp = []
         for b in struct.unpack(fmt,data):

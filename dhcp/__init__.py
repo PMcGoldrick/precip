@@ -1,3 +1,5 @@
+__version__ = "0.1"
+__all__ = ["packet", "service"]
 opts = [
     'pad',
     # Vendor Extension
@@ -566,4 +568,4 @@ message_types ={
     '7' : 'DHCP_RELEASE',
     '8' : 'DHCP_INFORM'
 }
-magic_cookie = [99,130,83,99]
+magic_cookie = [99, 130, 83, 99]

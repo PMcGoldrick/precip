@@ -30,6 +30,6 @@ class DHCP(DatagramProtocol):
     
     
     def discoverRecieved(self,):
-        pass
+        print "Recieved a DISCOVER packet"
     
 

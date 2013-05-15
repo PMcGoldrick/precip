@@ -1,6 +1,6 @@
 """ Defines DHCP Packet structure, parsers, and generators """
 import struct
-from . import MAGIC_COOKIE, FIELDS
+from . import MAGIC_COOKIE, FIELDS, OPTS
 
 
 class Packet(object):
@@ -15,6 +15,9 @@ class Packet(object):
         """
         self._unpacked_data = None
         self.dirty = False      # flip switch to rebuild packet
+        
+        # {string_name : [ID, Value]}
+        self.enabled_options = {}
         
         if reply:
             self.buildPacket(**kwargs)
@@ -36,18 +39,48 @@ class Packet(object):
         """
         if not data:
             print("No data provided for parsing")
-        
+
         # Parse the required DHCP headers
         for opt in FIELDS:
             offset = FIELDS[opt][0]
             length = FIELDS[opt][1]
             setattr(self, opt, data[offset:offset+length])
-            print opt, ": ", data[offset:offset+length]
-        print "################################"
-        
-        #Option Fields start AFTER the MAGIC_COOKIE
-        opts_start = [(i, i+len(MAGIC_COOKIE)) for i in xrange(len(data)) if data[i:i+len(MAGIC_COOKIE)] == MAGIC_COOKIE][0][1]+1
-        #TODO
+        # Get the index of magic cookie and start at the next index
+        # to parse options
+        index = self.magicCookieIndexes(data)[1]
+        while index < len(data):
+            # Octect indicates we've reached
+            # the end of interesting packet data
+            option = data[index]
+            if option == 255:
+                break
+            # Padding
+            elif option == 0:
+                index += 1
+            else:
+                vlength = data[index+1]
+                vstart = index + 2
+                vend = index + 2 + vlength
+                #[ ID | length | Data ]
+                self.enabled_options[OPTS[option]] = [option, data[vstart:vend]]
+                index += vlength +2
+
+    
+    def magicCookieIndexes(self, data):
+        """
+        Locate ant return a tuple containing
+        indexes that represent the slice of ``data``
+        which contains MAGIC_COOKIE
+        """
+        mc_index = ()
+        if data[236:240] == MAGIC_COOKIE:
+            mc_index = (236, 240)
+        else:
+            res = [(i, i+len(MAGIC_COOKIE)) for i in range(len(data) - len(MAGIC_COOKIE)) if data[i:i+len(MAGIC_COOKIE)] == MAGIC_COOKIE]
+            if len(res):
+                mc_index = res[0]
+        return mc_index
+
 
     @property
     def unpackedData(self):
@@ -56,6 +89,8 @@ class Packet(object):
         """
         if self._unpacked_data:
             return self._unpacked_data
+        else:
+            return None
 
     
     @unpackedData.setter
@@ -70,11 +105,9 @@ class Packet(object):
             return
         
         fmt = str(len(data)) + "c"
-        temp = []
-        for blk in struct.unpack(fmt, data):
-            temp.append(ord(blk))
-        
-        if len(temp) and temp[236:240] == MAGIC_COOKIE:
+        temp = [ord(char) for char in struct.unpack(fmt, data)]
+
+        if len(temp) and self.magicCookieIndexes(temp):
             self._unpacked_data = temp
         else:
             print "Not a DHCP packet"

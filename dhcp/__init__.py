@@ -1,6 +1,12 @@
+""" A DHCP implementation in Twisted """
 __version__ = "0.1"
-__all__ = ["packet", "service"]
-opts = [
+
+__all__ = [
+    'packet',
+    'service',
+]
+
+OPTS = [
     'pad',
     # Vendor Extension
     'subnet_mask',
@@ -21,7 +27,6 @@ opts = [
     'swap_server',
     'root_path',
     'extensions_path',
-    
     # IP layer parameters per host
     'ip_forwarding',
     'nonlocal_source_rooting',
@@ -30,7 +35,6 @@ opts = [
     'default_ip_time-to-live',
     'path_mtu_aging_timeout',
     'path_mtu_table',
-    
     # IP layer parameters per interface
     'interface_mtu',
     'all_subnets_are_local',
@@ -40,17 +44,14 @@ opts = [
     'perform_router_discovery',
     'routeur_solicitation_address',
     'static_route',
-    
     # link layer parameters per interface
     'trailer_encapsulation',
     'arp_cache_timeout',
     'ethernet_encapsulation',
-    
     # TCP parameters
     'tcp_default_ttl',
     'tcp_keepalive_interval',
     'tcp_keepalive_garbage',
-    
     # Applications and service parameters
     'nis_domain',
     'nis_servers',
@@ -62,7 +63,6 @@ opts = [
     'nb_scope',
     'x_window_system_font_server',
     'x_window_system_display_manager',
-
     # DHCP extensions
     'request_ip_address',
     'ip_address_lease_time',
@@ -76,8 +76,6 @@ opts = [
     'rebinding_time_value',
     'vendor_class',
     'client_identifier',
-    
-
     # adds from RFC 2132,2242
     'netware_ip_domain_name',
     'netware_ip_sub_options',
@@ -97,7 +95,6 @@ opts = [
     'user_class',
     'directory_agent',
     'service_scope',
-
     # 80
     'rapid_commit',
     'client_fqdn',
@@ -119,7 +116,6 @@ opts = [
     'unassigned',
     'uuid_guid', #RFC 3679
     'open_group_user_auth', #RFC 2485
-
     # 99->115 RFC3679
     'unassigned',
     'unassigned',
@@ -138,7 +134,6 @@ opts = [
     'netinfo_tag',
     'url',
     'unassigned',
-
     #116
     'auto_config',
     'name_service_search',
@@ -148,10 +143,9 @@ opts = [
     'classless_static_route',
     'cablelabs_client_configuration',
     'geoconf',
-
     #124
-    'vendor_class', 'vendor_specific',
-
+    'vendor_class',
+    'vendor_specific',
     '126',
     '127',
     '128',
@@ -283,7 +277,7 @@ opts = [
     '254',
     'end'
     ]
-opt_types = [
+OPT_TYPES = [
     'none',
     'ipv4',
     'ipv4',
@@ -405,7 +399,6 @@ opt_types = [
     'ipv4',
     'RFC3397',
     'RFC3361',
-    #TODO
     'Unassigned',
     'Unassigned',
     'Unassigned',
@@ -534,7 +527,7 @@ opt_types = [
 ]
 
 # [offset, length, type]
-fields = {
+FIELDS = {
     'op' : [0, 1, 'int'],
     'htype' : [1, 1, 'int'],
     'hlen' : [2, 1, 'int'],
@@ -551,13 +544,13 @@ fields = {
     'file' : [108, 128, 'str']
 }
 
-op_values = {
+OP_VALUES = {
     '0' : 'ERROR_UNDEF',
     '1' : 'BOOTREQUEST' ,
     '2' : 'BOOTREPLY'
 }
 
-message_types ={
+MESSAGE_TYPES = {
     '0' : 'ERROR_UNDEF',
     '1' : 'DHCP_DISCOVER',
     '2' : 'DHCP_OFFER',
@@ -568,4 +561,24 @@ message_types ={
     '7' : 'DHCP_RELEASE',
     '8' : 'DHCP_INFORM'
 }
-magic_cookie = [99, 130, 83, 99]
+
+MAGIC_COOKIE = [99, 130, 83, 99]
+
+# fields_specs : {'option_code':fixed_length,minimum_length,multiple}
+# if fixed_length == 0 : minimum_length and multiple apply
+# else : forget minimum_length and multiple
+# multiple : length MUST be a multiple of 'multiple'
+
+FIELD_SPECS = {
+    "ipv4":[4,0,1],
+    "ipv4+":[0,4,4],
+    "string":[0,0,1],
+    "bool":[1,0,1],
+    "char":[1,0,1],
+    "16-bits":[2,0,1],
+    "32-bits":[4,0,1],
+    "identifier":[0,2,1],
+    "RFC3397":[0,4,1],
+    "none":[0,0,1],
+    "char+":[0,1,1]
+}

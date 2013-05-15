@@ -1,7 +1,7 @@
 from packet import Packet
 
 from twisted.internet.protocol import DatagramProtocol
-from twisted.internet import reactor
+
 
 
 
@@ -15,14 +15,21 @@ class DHCP(DatagramProtocol):
 
 
     def stopProtocol(self):
+        """
+        Clean up when protocol is getting ready to stop
+        """
         pass
 
 
-    def datagramReceived(self, data, (host, port)): 
-        a = Packet(data=data)
-        
+    def datagramReceived(self, data, (host, port)):
+        """
+        Heard a packet on port 67. There's no garuntee that
+        it's a DHCP packet though!
+        """
+        a = Packet(data)
+    
+    
+    def discoverRecieved(self,):
+        pass
+    
 
-if __name__ == "__main__":
-    __package__ = "dhcp.service"
-    reactor.listenMulticast(67, DHCP(), listenMultiple=True)
-    reactor.run()

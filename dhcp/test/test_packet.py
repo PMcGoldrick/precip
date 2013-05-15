@@ -63,6 +63,7 @@ p0
         self.assertIsNone(should_be_none)
         self.assertEqual(should_be_foo, "foo")
 
+        # Finally, ensure it doesn't overwrite existing data
         self.packet._unpacked_data = "bar"
         self.packet.unpackedData.__set__(self.packet, "baz")
         self.assertEqual(self.packet._unpacked_data, "bar")

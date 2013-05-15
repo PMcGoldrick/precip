@@ -7,7 +7,7 @@ class Packet(object):
     """
     Class to build, modify, and parse DHCP packets
     """
-    
+
     def __init__(self, data, reply=False, **kwargs):
         """
         If data is provide, parse the packet, otherwise
@@ -15,25 +15,24 @@ class Packet(object):
         """
         self._unpacked_data = None
         self.dirty = False      # flip switch to rebuild packet
-        
+
         # {string_name : [ID, Value]}
         self.enabled_options = {}
-        
+
         if reply:
             self.buildPacket(**kwargs)
         else:
-            self.unpackedData = data # memoize binary packet data
-            self.parsePacket(self.unpackedData)
-
+            self.unpackedData = data  # memoize binary packet data
+            self.parseHeaders(self.unpackedData)
+            self.parseOptions(self.unpackedData)
 
     def buildPacket(self, **kwargs):
         """
         Create a packet from provided kwargs
         """
         pass
-    
 
-    def parsePacket(self, data):
+    def parseHeaders(self, data):
         """
         Parse the provided packet
         """
@@ -44,9 +43,15 @@ class Packet(object):
         for opt in FIELDS:
             offset = FIELDS[opt][0]
             length = FIELDS[opt][1]
-            setattr(self, opt, data[offset:offset+length])
-        # Get the index of magic cookie and start at the next index
-        # to parse options
+            try:
+                setattr(self, opt, data[offset:offset + length])
+            except IndexError:
+                print "Error parsing headers"
+
+    def parseOptions(self, data):
+        """
+        Extract and assign the optional params in the packet
+        """
         index = self.magicCookieIndexes(data)[1]
         while index < len(data):
             # Octect indicates we've reached
@@ -58,14 +63,14 @@ class Packet(object):
             elif option == 0:
                 index += 1
             else:
-                vlength = data[index+1]
+                vlength = data[index + 1]
                 vstart = index + 2
-                vend = index + 2 + vlength
+                vend = vstart + vlength
                 #[ ID | length | Data ]
                 self.enabled_options[OPTS[option]] = [option, data[vstart:vend]]
-                index += vlength +2
+                index = vend
+                vstart = vend = vlength = None
 
-    
     def magicCookieIndexes(self, data):
         """
         Locate ant return a tuple containing
@@ -76,11 +81,10 @@ class Packet(object):
         if data[236:240] == MAGIC_COOKIE:
             mc_index = (236, 240)
         else:
-            res = [(i, i+len(MAGIC_COOKIE)) for i in range(len(data) - len(MAGIC_COOKIE)) if data[i:i+len(MAGIC_COOKIE)] == MAGIC_COOKIE]
+            res = [(i, i + len(MAGIC_COOKIE)) for i in range(len(data) - len(MAGIC_COOKIE)) if data[i:i + len(MAGIC_COOKIE)] == MAGIC_COOKIE]
             if len(res):
                 mc_index = res[0]
         return mc_index
-
 
     @property
     def unpackedData(self):
@@ -92,18 +96,17 @@ class Packet(object):
         else:
             return None
 
-    
     @unpackedData.setter
     def unpackedData(self, data):
         """
         Transition the packet from wire format into a
         readable format, and set the attribute.
-        Short circuits if data already exists. 
+        Short circuits if data already exists.
         """
-        if self._unpacked_data: 
+        if self._unpacked_data:
             print("Packet data not parsed as unpacked data already exists")
             return
-        
+
         fmt = str(len(data)) + "c"
         temp = [ord(char) for char in struct.unpack(fmt, data)]
 
@@ -111,10 +114,3 @@ class Packet(object):
             self._unpacked_data = temp
         else:
             print "Not a DHCP packet"
-            
-
-
-
-    
-
-

@@ -1,0 +1,2 @@
+class DHCPError(Exception):
+    pass

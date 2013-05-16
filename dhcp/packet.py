@@ -1,6 +1,8 @@
 """ Defines DHCP Packet structure, parsers, and generators """
+
 import struct
 from . import MAGIC_COOKIE, FIELDS, OPTS
+from .errors import DHCPError
 
 
 class Packet(object):
@@ -37,16 +39,15 @@ class Packet(object):
         Parse the provided packet
         """
         if not data:
-            print("No data provided for parsing")
-
+            DHCPError("No data provided for parsing")
         # Parse the required DHCP headers
         for opt in FIELDS:
             offset = FIELDS[opt][0]
             length = FIELDS[opt][1]
             try:
                 setattr(self, opt, data[offset:offset + length])
-            except IndexError:
-                print "Error parsing headers"
+            except:
+                raise
 
     def parseOptions(self, data):
         """
@@ -104,7 +105,7 @@ class Packet(object):
         Short circuits if data already exists.
         """
         if self._unpacked_data:
-            print("Packet data not parsed as unpacked data already exists")
+            raise DHCPError("Packet data not parsed as unpacked data already exists")
             return
 
         fmt = str(len(data)) + "c"

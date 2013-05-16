@@ -68,9 +68,10 @@ p0
         self.assertEqual(should_be_foo, "foo")
 
         # Finally, ensure it doesn't overwrite existing data
+        # trial not yet supporting context manager asserts
+        from dhcp.errors import DHCPError
         self.packet._unpacked_data = "bar"
-        self.packet.unpackedData.__set__(self.packet, "baz")
-        self.assertEqual(self.packet._unpacked_data, "bar")
+        self.assertRaises(DHCPError, self.packet.unpackedData.__set__, *(self.packet, "baz"))
 
     def test_parse_headers(self):
         """

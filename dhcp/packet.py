@@ -28,6 +28,16 @@ class Packet(object):
             self.parseHeaders(self.unpackedData)
             self.parseOptions(self.unpackedData)
 
+    @property
+    def messageType(self):
+        """
+        Return the string represented by this packets
+        dhcp_message_type option #53
+        """
+        if not self.unpackedData:
+            raise DHCPError("Invalid packet, or packet not parsed")
+        return self.enabled_options["dhcp_message_type"][1][0]
+
     def buildPacket(self, **kwargs):
         """
         Create a packet from provided kwargs

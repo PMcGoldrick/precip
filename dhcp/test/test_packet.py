@@ -92,3 +92,11 @@ p0
         self.packet.enabled_options = {}
         self.packet.parseOptions(self.good_decoded_packet)
         self.assertItemsEqual(self.packet.enabled_options, self.gdp_enabled_options)
+
+    def test_message_type(self):
+        """
+        ensure that messageType is returning the correct data
+        """
+        self.packet.enabled_options = self.gdp_enabled_options
+        self.packet.messageType = Packet.messageType
+        self.assertEquals(self.packet.messageType.__get__(self.packet), 1)

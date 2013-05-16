@@ -349,7 +349,7 @@ OPT_TYPES = [
     'ipv4',
     'ipv4+',
     'ipv4+',
-    'ipv4+',                    
+    'ipv4+',
     'ipv4+',
     'ipv4+',
     'ipv4+',
@@ -568,7 +568,6 @@ MAGIC_COOKIE = [99, 130, 83, 99]
 # if fixed_length == 0 : minimum_length and multiple apply
 # else : forget minimum_length and multiple
 # multiple : length MUST be a multiple of 'multiple'
-
 FIELD_SPECS = {
     "ipv4":[4,0,1],
     "ipv4+":[0,4,4],

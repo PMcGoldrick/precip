@@ -1,15 +1,18 @@
 from packet import Packet
 from . import MESSAGE_TYPES
 from .errors import DHCPError
+from .util import byteArrayToInt4
 
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import defer
+
 
 def dhcpDebugPacketHandler(f):
     def wrapper(*args, **kwargs):
         print f.__name__[0:-8], " received"
         return f(*args, **kwargs)
     return wrapper
+
 
 class DHCPMulti(DatagramProtocol):
 
@@ -18,6 +21,8 @@ class DHCPMulti(DatagramProtocol):
         Called when transport is connected
         """
         self.transport.joinGroup('224.0.0.1')
+        # { int(xid) : [Packet, Packet, Packet,...]}
+        self.sessions = {}
 
     def stopProtocol(self):
         """
@@ -27,14 +32,22 @@ class DHCPMulti(DatagramProtocol):
 
     def datagramReceived(self, data, (host, port)):
         """
-        Heard a packet on port 67. There's no garuntee that
+        Heard a packet on port 67. There's no guarantee that
         it's a DHCP packet though!
         """
         print host, port
         try:
-            a = Packet(data)
-            msg_type = MESSAGE_TYPES[a.messageType].split("_")[1].lower()
-            getattr(self, msg_type+"Received")(a)
+            # Instantiate packet and extract the xid
+            p = Packet(data)
+            xid = byteArrayToInt4(p.xid)
+
+            # store the packet in it's session
+            self.sessions[xid] = self.sessions.get(xid, []).append(p)
+
+            # dispatch the packet to appropriate handler according
+            # to the DHCP_MESSAGE_TYPE header
+            msg_type = MESSAGE_TYPES[p.messageType].split("_")[1].lower()
+            getattr(self, msg_type + "Received")(p)
         except DHCPError:
             import traceback
             print DHCPError
@@ -45,10 +58,6 @@ class DHCPMulti(DatagramProtocol):
 
     @dhcpDebugPacketHandler
     def discoverReceived(self, packet):
-        pass
-
-    @dhcpDebugPacketHandler
-    def requestReceived(self, packet):
         pass
 
     @dhcpDebugPacketHandler

@@ -550,17 +550,17 @@ OP_VALUES = {
     '2' : 'BOOTREPLY'
 }
 
-MESSAGE_TYPES = {
-    '0' : 'ERROR_UNDEF',
-    '1' : 'DHCP_DISCOVER',
-    '2' : 'DHCP_OFFER',
-    '3' : 'DHCP_REQUEST',
-    '4' : 'DHCP_DECLINE',
-    '5' : 'DHCP_ACK',
-    '6' : 'DHCP_NACK',
-    '7' : 'DHCP_RELEASE',
-    '8' : 'DHCP_INFORM'
-}
+MESSAGE_TYPES = [
+    'ERROR_UNDEF',
+    'DHCP_DISCOVER',
+    'DHCP_OFFER',
+    'DHCP_REQUEST',
+    'DHCP_DECLINE',
+    'DHCP_ACK',
+    'DHCP_NACK',
+    'DHCP_RELEASE',
+    'DHCP_INFORM'
+]
 
 MAGIC_COOKIE = [99, 130, 83, 99]
 

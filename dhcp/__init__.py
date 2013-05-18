@@ -277,8 +277,7 @@ OPTS = [
     '254',
     'end'
     ]
-OPT_TYPES = [
-    'none',
+OPT_TYPES = ['none',
     'ipv4',
     'ipv4',
     'ipv4+',
@@ -331,7 +330,7 @@ OPT_TYPES = [
     'ipv4',
     '32-bits',
     'char',
-    'char',
+    'int',
     '32-bits',
     'char+',
     'string',

@@ -39,15 +39,13 @@ class DHCPMulti(DatagramProtocol):
         try:
             # Instantiate packet and extract the xid
             p = Packet(data)
-            for header in FIELDS:
-                print header, ": ", p.getHeader(header)
-            
             # store the packet in it's session
-            # self.sessions[xid] = self.sessions.get(xid, []).append(p)
+            xid = p.getHeader("xid")
+            self.sessions[xid] = self.sessions.get(xid, []).append(p)
 
             # dispatch the packet to appropriate handler according
-            # to the DHCP_MESSAGE_TYPE header
-            msg_type = MESSAGE_TYPES[p.messageType].split("_")[1].lower()
+            # to the DHCP_MESSAGE_TYPE option
+            msg_type = MESSAGE_TYPES[p.getOption("dhcp_message_type")].split("_")[1].lower()
             getattr(self, msg_type + "Received")(p)
         except DHCPError:
             import traceback

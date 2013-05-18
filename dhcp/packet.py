@@ -1,7 +1,7 @@
 """ Defines DHCP Packet structure, parsers, and generators """
 
 import struct
-from . import MAGIC_COOKIE, FIELDS, OPTS
+from . import MAGIC_COOKIE, FIELDS, OPTS, OPT_TYPES
 from .errors import DHCPError
 
 
@@ -20,6 +20,9 @@ class Packet(object):
 
         # {string_name : [ID, Value]}
         self.enabled_options = {}
+        
+        # string_name : value
+        self.headers = {}
 
         if reply:
             self.buildPacket(**kwargs)
@@ -28,14 +31,13 @@ class Packet(object):
             self.parseHeaders(self.unpackedData)
             self.parseOptions(self.unpackedData)
     
-    def getHeader(self, header, force_type=False):
+    def convert(self, val, fmt):
         """
-        Get the value for the default header and unpack it to
-        and appropriate format. The conversion methods aren't guaranteed
+        The conversion methods aren't guaranteed
         to not be implementation specific - so we'll keep them scoped here
         for now.
         """
-        
+        print "Convert called with %s, %s" % (val, fmt)
         def convInt(val):
             """ Convert from list of 8 bit (char) to unsigned long """
             if len(val) == 4:
@@ -43,6 +45,9 @@ class Packet(object):
             
             elif len(val) == 2:
                 return struct.unpack("!H", ''.join([chr(i) for i in val]))[0]
+            
+            elif len(val) == 1:
+                return val[0]
         
         def convIPv4(val):
             """ Convert from a bytearray to IP address """
@@ -64,11 +69,6 @@ class Packet(object):
             res = [chr(i) for i in val]
             return ''.join(res)
         
-        if force_type:
-            raise NotImplementedError()
-        
-        val = getattr(self, '_' + header, None)
-        fmt = FIELDS[header][2]
         if not val or fmt == "int":
             return val[0]
         elif "int" in fmt:
@@ -79,6 +79,29 @@ class Packet(object):
             return convMAC(val)
         elif fmt == "str":
             return convStr(val)
+        
+    def getHeader(self, header, force_type=False):
+        """
+        Get the value for the default header and unpack it to
+        and appropriate format.
+        """
+        if force_type:
+            raise NotImplementedError()
+        val = self.headers[header]
+        fmt = FIELDS[header][2]
+        return self.convert(val, fmt)
+    
+    def getOption(self, option, force_type=False):
+        """
+        Get the value for the default header and unpack it to
+        and appropriate format.
+        """
+        if force_type:
+            raise NotImplementedError()
+        val = self.enabled_options[option]
+        fmt = OPT_TYPES[val[0]]
+        print "optoin val, fmt: ", val, " ", fmt
+        return self.convert(val[1], fmt)
     
     @property
     def messageType(self):
@@ -106,10 +129,7 @@ class Packet(object):
         for opt in FIELDS:
             offset = FIELDS[opt][0]
             length = FIELDS[opt][1]
-            try:
-                setattr(self, "_" + opt, data[offset:offset + length])
-            except:
-                raise
+            self.headers[opt] = data[offset:offset + length]
 
     def parseOptions(self, data):
         """

@@ -1,5 +1,5 @@
 from packet import Packet
-from . import MESSAGE_TYPES
+from . import MESSAGE_TYPES, FIELDS
 from .errors import DHCPError
 from .util import byteArrayToInt4
 
@@ -39,10 +39,11 @@ class DHCPMulti(DatagramProtocol):
         try:
             # Instantiate packet and extract the xid
             p = Packet(data)
-            xid = byteArrayToInt4(p.xid)
-
+            for header in FIELDS:
+                print header, ": ", p.getHeader(header)
+            
             # store the packet in it's session
-            self.sessions[xid] = self.sessions.get(xid, []).append(p)
+            # self.sessions[xid] = self.sessions.get(xid, []).append(p)
 
             # dispatch the packet to appropriate handler according
             # to the DHCP_MESSAGE_TYPE header

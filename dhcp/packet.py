@@ -27,7 +27,51 @@ class Packet(object):
             self.unpackedData = data  # memoize binary packet data
             self.parseHeaders(self.unpackedData)
             self.parseOptions(self.unpackedData)
-
+    
+    def getHeader(self, header, force_type=False):
+        """
+        Get the value for the default header and unpack it to
+        and appropriate format
+        """
+        
+        def convInt(val):
+            """ Convert from list of 8 bit (char) to unsigned long """
+            if len(val) == 4:
+                return struct.unpack("!I", ''.join([chr(i) for i in val]))[0]
+            
+            elif len(val) == 2:
+                return struct.unpack("!H", ''.join([chr(i) for i in val]))
+        
+        def convIPv4(val):
+            """ Convert from a bytearray to IP address """
+            if not len(val) == 4:
+                raise ValueError("ByteArray not appropriate for an IPv4 address")
+        
+        def convMAC(val):
+            res = [hex(i) for i in val]
+            return ":".join(res)
+        
+        def convStr(val):
+            res = [chr(i) for i in val]
+            return ''.join(res)
+        
+        if force_type:
+            raise NotImplementedError()
+        
+        val = getattr(self, '_' + header, None)
+        fmt = FIELDS[header][2]
+        print val
+        if not val or fmt == "int":
+            return val
+        elif "int" in fmt:
+            return convInt(val)
+        elif fmt == "ipv4":
+            return convIPv4(val)
+        elif fmt == "hwmac":
+            return convMAC(val)
+        elif fmt == "str":
+            return convStr(val)
+    
     @property
     def messageType(self):
         """
@@ -55,7 +99,7 @@ class Packet(object):
             offset = FIELDS[opt][0]
             length = FIELDS[opt][1]
             try:
-                setattr(self, opt, data[offset:offset + length])
+                setattr(self, "_" + opt, data[offset:offset + length])
             except:
                 raise
 

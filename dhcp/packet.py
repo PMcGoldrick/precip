@@ -48,7 +48,8 @@ class Packet(object):
                 raise ValueError("ByteArray not appropriate for an IPv4 address")
         
         def convMAC(val):
-            res = [hex(i) for i in val]
+            length = self.getHeader('hlen')
+            res = ["%02x" % i for i in val[:length]]
             return ":".join(res)
         
         def convStr(val):
@@ -62,7 +63,7 @@ class Packet(object):
         fmt = FIELDS[header][2]
         print val
         if not val or fmt == "int":
-            return val
+            return val[0]
         elif "int" in fmt:
             return convInt(val)
         elif fmt == "ipv4":

@@ -112,7 +112,7 @@ p0
         hlen = self.packet.getHeader("hlen")
         self.assertEqual(hlen, 6)
 
-        #mac String from hlen octets
+        #mac String from `hlen` octets
         self.packet._chaddr = [1, 2, 4, 16, 10, 7, 8]
         mac = self.packet.getHeader("chaddr")
         self.assertEqual(mac, "01:02:04:10:0a:07")
@@ -121,3 +121,13 @@ p0
         self.packet._file = [72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33]
         out = self.packet.getHeader('file')
         self.assertEqual("Hello, world!", out)
+
+        # xid 32 bit int
+        self.packet._xid = [40, 25, 145, 196]
+        xid = self.packet.getHeader('xid')
+        self.assertEqual(xid, 672764356)
+
+        # flag 16 bit int
+        self.packet._flags = [128, 0]
+        flag = self.packet.getHeader('flags')
+        self.assertEqual(flag, 32768)

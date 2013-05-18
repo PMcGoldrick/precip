@@ -40,15 +40,20 @@ class Packet(object):
                 return struct.unpack("!I", ''.join([chr(i) for i in val]))[0]
             
             elif len(val) == 2:
-                return struct.unpack("!H", ''.join([chr(i) for i in val]))
+                return struct.unpack("!H", ''.join([chr(i) for i in val]))[0]
         
         def convIPv4(val):
             """ Convert from a bytearray to IP address """
             if not len(val) == 4:
                 raise ValueError("ByteArray not appropriate for an IPv4 address")
+            raise NotImplementedError("Method has not been implemented yet")
         
-        def convMAC(val):
-            length = self.getHeader('hlen')
+        def convMAC(val, length=6):
+            """
+            Convert to a hardware address.
+            For `chaddr` length should be set from `hlen` header.
+            `htype` is ignored in this implementation because... yeah.
+            """
             res = ["%02x" % i for i in val[:length]]
             return ":".join(res)
         

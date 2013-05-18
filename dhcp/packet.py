@@ -61,7 +61,6 @@ class Packet(object):
         
         val = getattr(self, '_' + header, None)
         fmt = FIELDS[header][2]
-        print val
         if not val or fmt == "int":
             return val[0]
         elif "int" in fmt:

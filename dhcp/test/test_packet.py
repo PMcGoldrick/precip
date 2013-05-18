@@ -81,7 +81,7 @@ p0
         self.packet.parseHeaders = MethodType(Packet.parseHeaders, self.packet)
         self.packet.parseHeaders(self.good_decoded_packet)
         for header in FIELDS.keys():
-            self.assertEqual(len(getattr(self.packet, header)), FIELDS[header][1])
+            self.assertEqual(len(getattr(self.packet, "_" + header)), FIELDS[header][1])
 
     def test_parse_options(self):
         """
@@ -100,3 +100,24 @@ p0
         self.packet.enabled_options = self.gdp_enabled_options
         self.packet.messageType = Packet.messageType
         self.assertEquals(self.packet.messageType.__get__(self.packet), 1)
+
+    def test_getheader_formatting(self):
+        """
+        Test that getHeader correctly formats return Values
+        """
+        self.packet.getHeader = MethodType(Packet.getHeader, self.packet)
+
+        #hlen, 8bit int
+        self.packet._hlen = [6]
+        hlen = self.packet.getHeader("hlen")
+        self.assertEqual(hlen, 6)
+
+        #mac String from hlen octets
+        self.packet._chaddr = [1, 2, 4, 16, 10, 7, 8]
+        mac = self.packet.getHeader("chaddr")
+        self.assertEqual(mac, "01:02:04:10:0a:07")
+
+        # file 128byte String
+        self.packet._file = [72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33]
+        out = self.packet.getHeader('file')
+        self.assertEqual("Hello, world!", out)

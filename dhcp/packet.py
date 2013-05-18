@@ -31,7 +31,9 @@ class Packet(object):
     def getHeader(self, header, force_type=False):
         """
         Get the value for the default header and unpack it to
-        and appropriate format
+        and appropriate format. The conversion methods aren't guaranteed
+        to not be implementation specific - so we'll keep them scoped here
+        for now.
         """
         
         def convInt(val):
@@ -58,6 +60,7 @@ class Packet(object):
             return ":".join(res)
         
         def convStr(val):
+            """ Convert list of 8 bit ints to a string!"""
             res = [chr(i) for i in val]
             return ''.join(res)
         
@@ -138,6 +141,8 @@ class Packet(object):
         which contains MAGIC_COOKIE
         """
         mc_index = ()
+        # This is the generally accepted default location
+        # for MAGIC_COOKIE, but it's not required. 
         if data[236:240] == MAGIC_COOKIE:
             mc_index = (236, 240)
         else:
@@ -166,10 +171,13 @@ class Packet(object):
         if self._unpacked_data:
             raise DHCPError("Packet data not parsed as unpacked data already exists")
             return
-
+        
+        # Convert into 8bit ints
         fmt = str(len(data)) + "c"
         temp = [ord(char) for char in struct.unpack(fmt, data)]
-
+        
+        # find the magic cookie in the packet to ensure
+        # this is actually a dhcp packet.
         if len(temp) and self.magicCookieIndexes(temp):
             self._unpacked_data = temp
         else:

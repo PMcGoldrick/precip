@@ -99,9 +99,9 @@ class Packet(object):
         if force_type:
             raise NotImplementedError()
         val = self.enabled_options[option]
-        fmt = OPT_TYPES[val[0]]
-        print "optoin val, fmt: ", val, " ", fmt
-        return self.convert(val[1], fmt)
+        fmt = OPT_TYPES[option]
+        print "option val, fmt: ", val, " ", fmt
+        return self.convert(val, fmt)
     
     @property
     def messageType(self):
@@ -150,7 +150,7 @@ class Packet(object):
                 vstart = index + 2
                 vend = vstart + vlength
                 #[ ID | length | Data ]
-                self.enabled_options[OPTS[option]] = [option, data[vstart:vend]]
+                self.enabled_options[OPTS[option]] = data[vstart:vend]
                 index = vend
                 vstart = vend = vlength = None
 

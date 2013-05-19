@@ -6,6 +6,7 @@ from .util import byteArrayToInt4
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import defer
 
+from collections import defaultdict
 
 def dhcpDebugPacketHandler(f):
     def wrapper(*args, **kwargs):
@@ -22,7 +23,7 @@ class DHCPMulti(DatagramProtocol):
         """
         self.transport.joinGroup('224.0.0.1')
         # { int(xid) : [Packet, Packet, Packet,...]}
-        self.sessions = {}
+        self.sessions = defaultdict(list)
 
     def stopProtocol(self):
         """
@@ -41,7 +42,7 @@ class DHCPMulti(DatagramProtocol):
             p = Packet(data)
             # store the packet in it's session
             xid = p.getHeader("xid")
-            self.sessions[xid] = self.sessions.get(xid, []).append(p)
+            self.sessions[xid].append(p)
 
             # dispatch the packet to appropriate handler according
             # to the DHCP_MESSAGE_TYPE option

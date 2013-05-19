@@ -69,7 +69,7 @@ class Packet(object):
             res = [chr(i) for i in val]
             return ''.join(res)
         
-        if not val or fmt == "int":
+        if fmt == "int":
             return val[0]
         elif "int" in fmt:
             return convInt(val)

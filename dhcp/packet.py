@@ -98,11 +98,12 @@ class Packet(object):
         """
         if force_type:
             raise NotImplementedError()
-        val = self.enabled_options[option]
+        val = self.enabled_options.get(options, None)
         fmt = OPT_TYPES[option]
         print "option val, fmt: ", val, " ", fmt
-        return self.convert(val, fmt)
+        return self.convert(val, fmt) if not val is None else None
     
+        
     @property
     def messageType(self):
         """

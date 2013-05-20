@@ -291,21 +291,21 @@ OPT_TYPES= {
     "lpr_server" : "ipv4+", # 9
     "impress_server" : "ipv4+", # 10
     "resource_location_server" : "ipv4+", # 11
-    "host_name" : "string", # 12
-    "boot_file" : "16-bits", # 13
-    "merit_dump_file" : "string", # 14
-    "domain_name" : "string", # 15
+    "host_name" : "str", # 12
+    "boot_file" : "int2", # 13
+    "merit_dump_file" : "str", # 14
+    "domain_name" : "str", # 15
     "swap_server" : "ipv4", # 16
-    "root_path" : "string", # 17
-    "extensions_path" : "string", # 18
+    "root_path" : "str", # 17
+    "extensions_path" : "str", # 18
     "ip_forwarding" : "bool", # 19
     "nonlocal_source_rooting" : "bool", # 20
     "policy_filter" : "ipv4+", # 21
-    "maximum_datagram_reassembly_size" : "16-bits", # 22
+    "maximum_datagram_reassembly_size" : "int2", # 22
     "default_ip_time-to-live" : "char", # 23
     "path_mtu_aging_timeout" : "ipv4", # 24
-    "path_mtu_table" : "16-bits", # 25
-    "interface_mtu" : "16-bits", # 26
+    "path_mtu_table" : "int2", # 25
+    "interface_mtu" : "int2", # 26
     "all_subnets_are_local" : "bool", # 27
     "broadcast_address" : "ipv4", # 28
     "perform_mask_discovery" : "bool", # 29
@@ -314,39 +314,39 @@ OPT_TYPES= {
     "routeur_solicitation_address" : "ipv4", # 32
     "static_route" : "ipv4+", # 33
     "trailer_encapsulation" : "bool", # 34
-    "arp_cache_timeout" : "32-bits", # 35
+    "arp_cache_timeout" : "int4", # 35
     "ethernet_encapsulation" : "bool", # 36
     "tcp_default_ttl" : "char", # 37
-    "tcp_keepalive_interval" : "32-bits", # 38
+    "tcp_keepalive_interval" : "int4", # 38
     "tcp_keepalive_garbage" : "bool", # 39
-    "nis_domain" : "string", # 40
+    "nis_domain" : "str", # 40
     "nis_servers" : "ipv4+", # 41
     "ntp_servers" : "ipv4+", # 42
-    "vendor_specific" : "string", # 43
+    "vendor_specific" : "str", # 43
     "nbns" : "ipv4+", # 44
     "nbdd" : "ipv4+", # 45
     "nd_node_type" : "char", # 46
-    "nb_scope" : "string", # 47
+    "nb_scope" : "str", # 47
     "x_window_system_font_server" : "ipv4+", # 48
     "x_window_system_display_manager" : "ipv4+", # 49
     "request_ip_address" : "ipv4", # 50
-    "ip_address_lease_time" : "32-bits", # 51
+    "ip_address_lease_time" : "int4", # 51
     "overload" : "char", # 52
     "dhcp_message_type" : "int", # 53
-    "server_identifier" : "32-bits", # 54
+    "server_identifier" : "int4", # 54
     "parameter_request_list" : "char+", # 55
-    "message" : "string", # 56
-    "maximum_dhcp_message_size" : "16-bits", # 57
-    "renewal_time_value" : "32-bits", # 58
-    "rebinding_time_value" : "32-bits", # 59
-    "vendor_class" : "string", # 60
+    "message" : "str", # 56
+    "maximum_dhcp_message_size" : "int2", # 57
+    "renewal_time_value" : "int4", # 58
+    "rebinding_time_value" : "int4", # 59
+    "vendor_class" : "str", # 60
     "client_identifier" : "identifier", # 61
-    "netware_ip_domain_name" : "string", # 62
+    "netware_ip_domain_name" : "str", # 62
     "netware_ip_sub_options" : "RFC2242", # 63
-    "nis+_domain" : "string", # 64
+    "nis+_domain" : "str", # 64
     "nis+_servers" : "ipv4+", # 65
-    "tftp_server_name" : "string", # 66
-    "bootfile_name" : "string", # 67
+    "tftp_server_name" : "str", # 66
+    "bootfile_name" : "str", # 67
     "mobile_ip_home_agent" : "ipv4", # 68
     "smtp_servers" : "ipv4+", # 69
     "pop_servers" : "ipv4+", # 70
@@ -360,7 +360,7 @@ OPT_TYPES= {
     "directory_agent" : "RFC2610", # 78
     "service_scope" : "RFC2610", # 79
     "rapid_commit" : "null", # 80
-    "client_fqdn" : "string", # 81
+    "client_fqdn" : "str", # 81
     "relay_agent" : "RFC3046", # 82
     "internet_storage_name_service" : "RFC4174", # 83
     "84" : "Unassigned", # 84
@@ -377,20 +377,20 @@ OPT_TYPES= {
     "ldap" : "Unassigned", # 95
     "unassigned" : "Unassigned", # 96
     "uuid_guid" : "Unassigned", # 97
-    "open_group_user_auth" : "string", # 98
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
-    "unassigned" : "Unassigned", # 96
+    "open_group_user_auth" : "str", # 98
+    "unassigned" : "Unassigned", # 99
+    "unassigned" : "Unassigned", # 100
+    "unassigned" : "Unassigned", # 101
+    "unassigned" : "Unassigned", # 102
+    "unassigned" : "Unassigned", # 103
+    "unassigned" : "Unassigned", # 104
+    "unassigned" : "Unassigned", # 105
+    "unassigned" : "Unassigned", # 106
+    "unassigned" : "Unassigned", # 107
+    "unassigned" : "Unassigned", # 108
+    "unassigned" : "Unassigned", # 109
+    "unassigned" : "Unassigned", # 110
+    "unassigned" : "Unassigned", # 111
     "netinfo_address" : "Unassigned", # 112
     "netinfo_tag" : "Unassigned", # 113
     "url" : "Unassigned", # 114
@@ -403,8 +403,8 @@ OPT_TYPES= {
     "classless_static_route" : "Unassigned", # 121
     "cablelabs_client_configuration" : "Unassigned", # 122
     "geoconf" : "Unassigned", # 123
-    "vendor_class" : "string", # 60
-    "vendor_specific" : "string", # 43
+    "vendor_class" : "str", # 60
+    "vendor_specific" : "str", # 43
     "126" : "Unassigned", # 126
     "127" : "Unassigned", # 127
     "128" : "Unassigned", # 128
@@ -582,11 +582,11 @@ MAGIC_COOKIE = [99, 130, 83, 99]
 FIELD_SPECS = {
     "ipv4":[4,0,1],
     "ipv4+":[0,4,4],
-    "string":[0,0,1],
+    "str":[0,0,1],
     "bool":[1,0,1],
     "char":[1,0,1],
-    "16-bits":[2,0,1],
-    "32-bits":[4,0,1],
+    "int2":[2,0,1],
+    "int4":[4,0,1],
     "identifier":[0,2,1],
     "RFC3397":[0,4,1],
     "none":[0,0,1],

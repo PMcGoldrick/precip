@@ -112,9 +112,13 @@ p0
                 "file": [72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33],
                 "xid": [40, 25, 145, 196],
                 "flags": [128, 0],
+                "ciaddr": [0, 0, 0, 0],
                 }
         self.packet.getHeader = MethodType(Packet.getHeader, self.packet)
         self.packet.convert = MethodType(Packet.convert, self.packet)
+        for i in ('convInt', 'convIPv4', 'convMAC', 'convStr'):
+            # dirty boy, dirty dirty dirty!
+            setattr(self.packet, i, MethodType(getattr(Packet, i), self.packet))
 
         #hlen, 8bit int
         hlen = self.packet.getHeader("hlen")
@@ -135,3 +139,7 @@ p0
         # flag 16 bit int
         flag = self.packet.getHeader('flags')
         self.assertEqual(flag, 32768)
+
+        # ip address
+        ciaddr = self.packet.getHeader('ciaddr')
+        self.assertEqual(ciaddr[0], "0.0.0.0")

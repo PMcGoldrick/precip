@@ -20,7 +20,7 @@ class Packet(object):
 
         # {string_name : [ID, Value]}
         self.enabled_options = {}
-        
+
         # string_name : value
         self.headers = {}
 
@@ -30,7 +30,7 @@ class Packet(object):
             self.unpackedData = data  # memoize binary packet data
             self.parseHeaders(self.unpackedData)
             self.parseOptions(self.unpackedData)
-    
+
     def convert(self, val, fmt):
         """
         The conversion methods aren't guaranteed
@@ -38,48 +38,52 @@ class Packet(object):
         for now.
         """
         print "Convert called with %s, %s" % (val, fmt)
-        def convInt(val):
-            """ Convert from list of 8 bit (char) to unsigned long """
-            if len(val) == 4:
-                return struct.unpack("!I", ''.join([chr(i) for i in val]))[0]
-            
-            elif len(val) == 2:
-                return struct.unpack("!H", ''.join([chr(i) for i in val]))[0]
-            
-            elif len(val) == 1:
-                return val[0]
-        
-        def convIPv4(val):
-            """ Convert from a bytearray to IP address """
-            if not len(val) == 4:
-                raise ValueError("ByteArray not appropriate for an IPv4 address")
-            raise NotImplementedError("Method has not been implemented yet")
-        
-        def convMAC(val, length=6):
-            """
-            Convert to a hardware address.
-            For `chaddr` length should be set from `hlen` header.
-            `htype` is ignored in this implementation because... yeah.
-            """
-            res = ["%02x" % i for i in val[:length]]
-            return ":".join(res)
-        
-        def convStr(val):
-            """ Convert list of 8 bit ints to a string!"""
-            res = [chr(i) for i in val]
-            return ''.join(res)
-        
-        if fmt == "int":
-            return val[0]
+
+        lookup = {
+                "ipv4": self.convIPv4,
+                "hwmac": self.convMAC,
+                "str": self.convStr
+                }
+        if fmt in lookup:
+            return lookup[fmt](val)
         elif "int" in fmt:
-            return convInt(val)
-        elif fmt == "ipv4":
-            return convIPv4(val)
-        elif fmt == "hwmac":
-            return convMAC(val)
-        elif fmt == "str":
-            return convStr(val)
-        
+            return self.convInt(val)
+        elif "ipv4" in fmt:
+            return self.convIPv4(val)
+
+    def convInt(self, val):
+        """ Convert from list of 8 bit (char) to unsigned long """
+        if len(val) == 4:
+            return struct.unpack("!I", ''.join([chr(i) for i in val]))[0]
+        elif len(val) == 2:
+            return struct.unpack("!H", ''.join([chr(i) for i in val]))[0]
+        elif len(val) == 1:
+            return val[0]
+
+    def convIPv4(self, val):
+        """ Convert from a bytearray to IP address """
+        if len(val) % 4:
+            raise ValueError("ByteArray not appropriate for an IPv4 address")
+        res = []
+        for index in range(len(val) / 4):
+            ip = val[index * 4: index * 4 + 4]
+            res.append("{0}.{1}.{2}.{3}".format(*ip))
+        return res
+
+    def convMAC(self, val, length=6):
+        """
+        Convert to a hardware address.
+        For `chaddr` length should be set from `hlen` header.
+        `htype` is ignored in this implementation because... yeah.
+        """
+        res = ["%02x" % i for i in val[:length]]
+        return ":".join(res)
+
+    def convStr(self, val):
+        """ Convert list of 8 bit ints to a string!"""
+        res = [chr(i) for i in val]
+        return ''.join(res)
+
     def getHeader(self, header, force_type=False):
         """
         Get the value for the default header and unpack it to
@@ -90,7 +94,7 @@ class Packet(object):
         val = self.headers[header]
         fmt = FIELDS[header][2]
         return self.convert(val, fmt)
-    
+
     def getOption(self, option, force_type=False):
         """
         Get the value for the default header and unpack it to
@@ -98,12 +102,11 @@ class Packet(object):
         """
         if force_type:
             raise NotImplementedError()
-        val = self.enabled_options.get(options, None)
+        val = self.enabled_options.get(option, None)
         fmt = OPT_TYPES[option]
         print "option val, fmt: ", val, " ", fmt
         return self.convert(val, fmt) if not val is None else None
-    
-        
+
     @property
     def messageType(self):
         """
@@ -163,7 +166,7 @@ class Packet(object):
         """
         mc_index = ()
         # This is the generally accepted default location
-        # for MAGIC_COOKIE, but it's not required. 
+        # for MAGIC_COOKIE, but it's not required.
         if data[236:240] == MAGIC_COOKIE:
             mc_index = (236, 240)
         else:
@@ -192,11 +195,11 @@ class Packet(object):
         if self._unpacked_data:
             raise DHCPError("Packet data not parsed as unpacked data already exists")
             return
-        
+
         # Convert into 8bit ints
         fmt = str(len(data)) + "c"
         temp = [ord(char) for char in struct.unpack(fmt, data)]
-        
+
         # find the magic cookie in the packet to ensure
         # this is actually a dhcp packet.
         if len(temp) and self.magicCookieIndexes(temp):

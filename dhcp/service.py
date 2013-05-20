@@ -1,12 +1,11 @@
 from packet import Packet
-from . import MESSAGE_TYPES, FIELDS
+from . import MESSAGE_TYPES
 from .errors import DHCPError
-from .util import byteArrayToInt4
 
 from twisted.internet.protocol import DatagramProtocol
-from twisted.internet import defer
 
 from collections import defaultdict
+
 
 def dhcpDebugPacketHandler(f):
     def wrapper(*args, **kwargs):

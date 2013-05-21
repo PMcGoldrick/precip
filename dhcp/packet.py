@@ -10,7 +10,7 @@ class Packet(object):
     Class to build, modify, and parse DHCP packets
     """
 
-    def __init__(self, data, reply=False, **kwargs):
+    def __init__(self, data, reply=False, enabled_options=None, headers=None):
         """
         If data is provide, parse the packet, otherwise
         build a packet with the provided keyword arguments
@@ -18,15 +18,17 @@ class Packet(object):
         self._unpacked_data = None
         self.dirty = False      # flip switch to rebuild packet
 
-        # {string_name : [ID, Value]}
-        self.enabled_options = {}
-
-        # string_name : value
-        self.headers = {}
-
-        if reply:
-            self.buildPacket(**kwargs)
+        if reply and (enabled_options and headers):
+            self.enabled_options = enabled_options
+            self.headers = headers
+            self.buildPacket()
+        elif reply and not (enabled_options and headers):
+            raise DHCPError("Packet creation attempted without required arugments")
         else:
+            # {string_name : [ID, Value]}
+            self.enabled_options = {}
+            # string_name : value
+            self.headers = {}
             self.unpackedData = data  # memoize binary packet data
             self.parseHeaders(self.unpackedData)
             self.parseOptions(self.unpackedData)
@@ -107,21 +109,17 @@ class Packet(object):
         print "option val, fmt: ", val, " ", fmt
         return self.convert(val, fmt) if not val is None else None
 
-    @property
-    def messageType(self):
-        """
-        Return the string represented by this packets
-        dhcp_message_type option #53
-        """
-        if not self.unpackedData:
-            raise DHCPError("Invalid packet, or packet not parsed")
-        return self.enabled_options["dhcp_message_type"][1][0]
-
-    def buildPacket(self, **kwargs):
+    def buildPacket(self):
         """
         Create a packet from provided kwargs
         """
-        pass
+        for key in FIELDS:
+            if key in kwargs:
+                self.headers[key] = kwargs[key]  #TODO pack this value
+        
+        for key in OPTS:
+            if key in kwargs:
+                self.enabled_options[key] =kwargs[key]
 
     def parseHeaders(self, data):
         """

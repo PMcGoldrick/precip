@@ -57,18 +57,29 @@ class DHCPMulti(DatagramProtocol):
 
     @dhcpDebugPacketHandler
     def discoverReceived(self, packet):
+        """
+        We received a discover packet. In the simplest case
+        we'll send an offer with the yiaddr field assigned to
+        the ip address for the client.
+        """
         pass
 
     @dhcpDebugPacketHandler
     def requestReceived(self, packet):
+        """
+        This, in most cases, will be recieved in response to an
+        OFFER sent to the client.
+        """
         pass
 
     @dhcpDebugPacketHandler
     def declineReceived(self, packet):
+        """ Client has declined our OFFER """
         pass
 
     @dhcpDebugPacketHandler
     def releaseReceived(self, packet):
+        """ Client has released it's assigned address """
         pass
 
     @dhcpDebugPacketHandler
